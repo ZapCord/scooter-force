@@ -5,11 +5,11 @@ The .csv input is the 1d csv created by a KITRONYX Tinn(Snowboard) with an MS975
 Running in R:
 Assuming you have Shiny installed:
 use: 
-'''
+```
 runGitHub("scooter-force","ZapCord",ref="v0.1.0")
-'''
+```
 
 Alternatively, download the release, unzip, and run by using: 
-'''
+```
 runApp('scooter-force-0.1.0')
-'''
+```
