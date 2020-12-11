@@ -49,12 +49,12 @@ ui <- fluidPage(
     ),
     column(7,
            sliderInput("slider_time", label = h3("Time Index"), min = 1, 
-                       max = 100, value = 1, width='100%')#,
-           #hr(),
-           # checkboxGroupInput("checkGroup", label = h3("Plot Options"), 
-           #                    choices = list("Interpolate" = 1, 
-           #                                   "Choice 2" = 2, "Choice 3" = 3),
-           #                    selected = 1)
+                       max = 100, value = 1, width='100%'),
+           hr(),
+           checkboxGroupInput("checkGroup", label = h3("Plot Options"),
+                              choices = list("Interpolate" = 1
+                                             )
+                              )
            
     ),
   )

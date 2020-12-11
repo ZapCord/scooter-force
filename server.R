@@ -13,8 +13,10 @@ exists_hash <- Vectorize(exists, vectorize.args = "x")
 
 ## server
 server<-function(input,output,session){
+  
   observeEvent(input$refresh,{shinyjs::js$refresh()})
   hash = new.env(hash = TRUE, parent = emptyenv())
+  
   observe({
     output$fileinputpanel<-renderPrint({ input$existing_data_input})
     if(is.null(input$existing_data_input) != TRUE){
@@ -47,12 +49,11 @@ server<-function(input,output,session){
           }
 
         }
-        hash[[paste(time)]]<-as.data.frame(data)
+        hash[[paste(time)]]<-data
       }
       
       keys<-reactiveVal()
       keys<-as.character(c(sort(as.numeric(ls(hash)))))
-      
       data_m<-unlist(get_hash(keys[input$slider_time],hash))
       data_df<-matrix(nrow=10,ncol=16)
       row_num<-1
@@ -66,23 +67,40 @@ server<-function(input,output,session){
           col_num=col_num+1
         }
       }
+      
       colnames(data_df)<-c("C1","C2","C3","C4","C5","C6","C7","C8",
                            "C9","C10","C11","C12","C13","C14","C15","C16")
       rownames(data_df)<-c("R1","R2","R3","R4","R5","R6","R7","R8","R9","R10")
       longData<-melt(data_df)
       names(longData)<-c("Rows","Columns","Force")
       output$table<-DT::renderDT(longData)
-      g<-ggplot(longData, aes(x = Columns, y = Rows)) + 
-        geom_raster(aes(fill=Force)) +
-        scale_fill_gradient(low="grey90", high="red") +
-        labs(x="Columns", y="Rows", title=
-               paste("Scooter Force:",input$test,",",
-                     input$subject,",","Time:",keys[input$slider_time],sep=" ")) +
-        theme_bw() + theme(axis.text.x=element_text(size=9, angle=0, vjust=0.3),
-                           axis.text.y=element_text(size=9),
-                           plot.title=element_text(size=11))
-      output$plot<-renderPlot({g})
       
+      g<-reactive({
+        if(length(input$checkGroup)==1){
+          ggplot(longData, aes(x = Columns, y = Rows)) + 
+            geom_raster(aes(fill=Force),interpolate = TRUE) +
+            scale_fill_gradient(low="grey90", high="red") +
+            labs(x="Columns", y="Rows", title=
+                   paste("Scooter Force:",input$test,",",
+                         input$subject,",","Time:",keys[input$slider_time],sep=" ")) +
+            theme_bw() + theme(axis.text.x=element_text(size=9, angle=0, vjust=0.3),
+                               axis.text.y=element_text(size=9),
+                               plot.title=element_text(size=11))
+        }else{
+          ggplot(longData, aes(x = Columns, y = Rows)) + 
+            geom_raster(aes(fill=Force)) +
+            scale_fill_gradient(low="grey90", high="red") +
+            labs(x="Columns", y="Rows", title=
+                   paste("Scooter Force:",input$test,",",
+                         input$subject,",","Time:",keys[input$slider_time],sep=" ")) +
+            theme_bw() + theme(axis.text.x=element_text(size=9, angle=0, vjust=0.3),
+                               axis.text.y=element_text(size=9),
+                               plot.title=element_text(size=11))
+        }
+      })
+      
+      output$plot<-renderPlot({g()})
+
       subject<-reactive({
         subject<-gsub(" ","_",input$subject)
       })
@@ -108,14 +126,14 @@ server<-function(input,output,session){
           paste(csv_name())
         },
         content=function(file){
-          write.csv(longData,file)
+          write.csv(longData,file,row.names = FALSE)
         }
       )
       
       output$saveplot<-downloadHandler(
         filename=function(){paste(test_name_sub(),"-",subject(),".jpeg",sep="")},
         content=function(file){
-          ggsave(file,plot=g)
+          ggsave(file,plot=g())
         }
       )
       
@@ -144,39 +162,47 @@ server<-function(input,output,session){
       names(longAvg)<-c("Rows","Columns","Force")
       output$avgtable<-DT::renderDT(longAvg)
       
-      p<-ggplot(longAvg, aes(x = Columns, y = Rows)) + 
-        geom_raster(aes(fill=Force)) +
-        scale_fill_gradient(low="grey90", high="red") +
-        labs(x="Columns", y="Rows", title=paste("Scooter Avg Force:",
-                                                input$test,",",
-                                                input$subject,sep=" ")) +
-        theme_bw() + theme(axis.text.x=element_text(size=9, angle=0, vjust=0.3),
-                           axis.text.y=element_text(size=9),
-                           plot.title=element_text(size=11))
+      p<-reactive({
+        if(length(input$checkGroup)==1){
+          ggplot(longAvg, aes(x = Columns, y = Rows)) + 
+            geom_raster(aes(fill=Force),interpolate = TRUE) +
+            scale_fill_gradient(low="grey90", high="red") +
+            labs(x="Columns", y="Rows", title=
+                   paste("Scooter Avg Force:",input$test,",",
+                         input$subject,sep=" ")) +
+            theme_bw() + theme(axis.text.x=element_text(size=9, angle=0, vjust=0.3),
+                               axis.text.y=element_text(size=9),
+                               plot.title=element_text(size=11))
+        }else{
+          ggplot(longAvg, aes(x = Columns, y = Rows)) + 
+            geom_raster(aes(fill=Force)) +
+            scale_fill_gradient(low="grey90", high="red") +
+            labs(x="Columns", y="Rows", title=
+                   paste("Scooter Avg Force:",input$test,",",
+                         input$subject,sep=" ")) +
+            theme_bw() + theme(axis.text.x=element_text(size=9, angle=0, vjust=0.3),
+                               axis.text.y=element_text(size=9),
+                               plot.title=element_text(size=11))
+        }
+      })
       
-      output$avgplot<-renderPlot(p)
+      output$avgplot<-renderPlot(p())
       output$saveaveragetable<-downloadHandler(
         filename=function(){
           paste(name(),"-avg",".csv",sep="")
         },
         content=function(file){
-          write.csv(longAvg,file)
+          write.csv(longAvg,file,row.names = FALSE)
         }
       )
       
       output$saveaverageplot<-downloadHandler(
         filename=function(){paste(test_name_sub(),"-",subject(),"-avg",".jpeg",sep="")},
         content=function(file){
-          ggsave(file,plot=p)
+          ggsave(file,plot=p())
         }
       )
     }
-    
-    #interp<-reactiveVal()
-    #interp<-str_detect(input$checkGroup,"1")
-    #print(interp)
-    
-    
     
   })
   
