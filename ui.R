@@ -49,12 +49,13 @@ ui <- fluidPage(
     ),
     column(7,
            sliderInput("slider_time", label = h3("Time Index"), min = 1, 
-                       max = 100, value = 1, width='100%'),
+                       max = 100, value = 1, width='100%',
+                       animate = animationOptions(interval=250)),
            hr(),
+           sliderInput("slider_range", label = h3("Times to calculate average from"),
+                       min = 1, max = 100, value=c(1,100),width='100%'),
            checkboxGroupInput("checkGroup", label = h3("Plot Options"),
-                              choices = list("Interpolate" = 1
-                                             )
-                              )
+                              choices = list("Interpolate" = 1))
            
     ),
   )
