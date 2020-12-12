@@ -6,10 +6,10 @@ Running in R:
 Assuming you have Shiny installed:
 use: 
 ```
-runGitHub("scooter-force","ZapCord",ref="v0.1.0")
+runGitHub("scooter-force","ZapCord",ref="v0.2.0")
 ```
 
 Alternatively, download the release, unzip, and run by using: 
 ```
-runApp('scooter-force-0.1.0')
+runApp('scooter-force-0.2.0')
 ```
