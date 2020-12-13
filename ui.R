@@ -44,14 +44,20 @@ ui <- fluidPage(
            downloadButton("savetable", label = "Save Table"),
            downloadButton("saveaverageplot", label = "Save Avg Plot"),
            downloadButton("saveaveragetable", label = "Save Avg Table"),
+           hr(),
            actionButton("refresh",label = "Refresh Page"),
-           hr()
+           actionButton("autorange",label = "Auto Range Slider"),
+           helpText("Auto range finds tries to find the first and 
+                    last non-zero forces time index for the average slider. 
+                    This helps estimate averages that do not take 
+                    into account initial setup and final takedown. User adjustment
+                    may be needed.")
+           
     ),
     column(7,
            sliderInput("slider_time", label = h3("Time Index"), min = 1, 
                        max = 100, value = 1, width='100%',
                        animate = animationOptions(interval=250)),
-           hr(),
            sliderInput("slider_range", label = h3("Times to calculate average from"),
                        min = 1, max = 100, value=c(1,100),width='100%'),
            checkboxGroupInput("checkGroup", label = h3("Plot Options"),

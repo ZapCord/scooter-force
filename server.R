@@ -43,6 +43,32 @@ server<-function(input,output,session){
   observeEvent(input$refresh,{shinyjs::js$refresh()})
   hash = new.env(hash = TRUE, parent = emptyenv())
   output$fileinputpanel<-renderPrint({ req(input$existing_data_input)})
+  
+  ## auto ranger for the average to get rid of initial and 
+  ## final 0 value forces
+  observeEvent(input$autorange,{
+    req(input$existing_data_input)
+    zero_vec<-(1:160)*0
+    for(key in 1:length(keys())){
+      data_m<-as.vector(get_hash(keys()[key],hash))
+      if(all(data_m==zero_vec)){
+        next
+      }else{
+        index1<-key
+        break
+      }
+    }
+    for(key in length(keys()):1){
+      data_m<-as.vector(get_hash(keys()[key],hash))
+      if(all(data_m != zero_vec)){
+        next
+      }else{
+        index2<-key
+        break
+      }
+    }
+    updateSliderInput(session,"slider_range",value=c(index1,index2))
+  })
   ## creating a hash table structure where 
   ## the key is the time for a force matrix value
   keys<-reactive({
@@ -86,7 +112,6 @@ server<-function(input,output,session){
     data_avg<-matrix(0,nrow=10,ncol=16)
     for(key in keys()[(input$slider_range[1]):(input$slider_range[2])]){
       data_m<-unlist(get_hash(key,hash))
-      data_df<-matrix(nrow=10,ncol=16)
       row_num<-1
       col_num<-1
       for(i in 1:length(data_m)){
