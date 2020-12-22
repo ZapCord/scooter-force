@@ -14,3 +14,12 @@ Alternatively, download the release, unzip, and run by using:
 ```
 runApp('scooter-force-0.4.0')
 ```
+
+Required packages:
+shiny, shinyjs, dplyr, tidyr, stringr, ggplot2, reshape2, DT
+
+
+To install required packages:
+```
+install.packages(c("shiny","shinyjs","dplyr","tidyr","stringr","ggplot2","reshape2","DT"))
+```
